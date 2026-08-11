@@ -1,0 +1,30 @@
+{
+  "name": "app-notificacao-backend",
+  "version": "1.0.0",
+  "description": "Backend Socket.IO para sistema de chamados por categoria (sem banco de dados, sem persistencia de logs)",
+  "main": "src/server.js",
+  "author": {
+    "name": "Cristiano Gustavo",
+    "url": "https://github.com/crisgustavo",
+    "company": "Infocenter Gestão e Sistemas"
+  },
+  "license": "ISC",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon",
+    "build": "sucrase ./src -d ./dist --transform imports",
+    "prod": "pm2 --name notificacao-backend start dist/server.js"
+  },
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14",
+    "sucrase": "^3.35.1"
+  }
+}
