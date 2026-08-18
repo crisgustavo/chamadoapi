@@ -80,6 +80,7 @@ io.on('connection', (socket) => {
 
   socket.on('new-call', (payload, callback) => {
     const departure = payload && payload.departure;
+    const from = socket.currentDeparture;
 
     if (!validDeparture(departure)) {
       const err = { success: false, error: 'Departamento inválido' };
@@ -89,6 +90,7 @@ io.on('connection', (socket) => {
 
     const call = {
       departure,
+      from,
       timestamp: Date.now(),
     };
 
@@ -99,6 +101,41 @@ io.on('connection', (socket) => {
       departure,
       destination: deviceByDeparture[departure].size,
     };
+    if (typeof callback === 'function') callback(response);
+  });
+
+  socket.on('call-answered', (payload, callback) => {
+    const departure = payload && payload.departure;
+
+    if (!validDeparture(departure)) {
+      const err = { success: false, error: 'Departamento inválido' };
+      if (typeof callback === 'function') callback(err);
+      return;
+    }
+
+    if (socket.currentDeparture !== departure) {
+      const err = {
+        success: false,
+        error: 'Dispositivo não está registrado neste departamento',
+      };
+      if (typeof callback === 'function') callback(err);
+      return;
+    }
+
+    const call = {
+      departure: departure,
+      answered: true,
+      timestamp: Date.now(),
+      answeredBy: socket.id,
+    };
+
+    socket.to(departure).emit('call-answered', call);
+
+    const response = {
+      success: true,
+      message: 'Chamada atendida',
+    };
+
     if (typeof callback === 'function') callback(response);
   });
 
