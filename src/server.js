@@ -43,6 +43,15 @@ app.get('/status', (req, res) => {
     status[departure] = deviceByDeparture[departure]?.size || 0;
   }
 
+  console.info({
+    online: true,
+    departures: status,
+    totalDevices: Object.values(deviceByDeparture).reduce(
+      (sum, set) => sum + set.size,
+      0,
+    ),
+  });
+
   res.json({
     online: true,
     departures: status,
@@ -75,6 +84,7 @@ io.on('connection', (socket) => {
     deviceByDeparture[departure].add(socket.id);
 
     const response = { success: true, departure };
+    console.info(response, socket.id);
     if (typeof callback === 'function') callback(response);
   });
 
@@ -101,6 +111,8 @@ io.on('connection', (socket) => {
       departure,
       destination: deviceByDeparture[departure].size,
     };
+
+    console.info(response);
     if (typeof callback === 'function') callback(response);
   });
 
@@ -129,18 +141,21 @@ io.on('connection', (socket) => {
       answeredBy: socket.id,
     };
 
-    socket.to(departure).emit('call-answered', call);
+    io.to(departure).emit('call-answered', call);
 
     const response = {
       success: true,
       message: 'Chamada atendida',
     };
 
+    console.info(call, response);
+
     if (typeof callback === 'function') callback(response);
   });
 
   socket.on('disconnect', () => {
     if (socket.currentDeparture) {
+      console.log(socket.currentDeparture, socket.id);
       deviceByDeparture[socket.currentDeparture].delete(socket.id);
     }
   });
